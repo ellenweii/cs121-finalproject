@@ -1,0 +1,58 @@
+---
+title: "CS CM121 Final Project"
+author: "Ellen Wei"
+date: "March 17, 2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(dplyr)
+```
+
+## K-means clustering
+```{r}
+source("project_function.R")
+```
+
+### Description of algorithm
+The data has missing values. One method would have been to remove all the rows including NA values, but I chose to replace the NA's with the column mean so that I could still keep those observations.
+
+First, I initialized k randomly sampled centroids. Then, using Euclidean distance, the distance is calculated between each observation and the centroids. The centroid with the minimum distance between the observation is assigned to the observation. After these two steps are initialized, I iterate between recalculating the centroid values taken as the mean of its assigned data points and reassigning the cluster to each observation. I monitor the change between distance between the centroid and its corresponding data points between iterations and once this change is less than my predetermined tolerance level of $10^{-8}$ or complete the predetermined number of iterations, I consider the algorithm to be complete and take the centroid values.
+
+### Testing with different values of k
+
+Using my k-means clustering function, I tried it with k = 2,4,7.
+
+```{r}
+k_means(data, k=2)
+k_means(data, k=4)
+k_means(data, k=7)
+
+```
+For k = 2, the cluster means look quite different. The values are quite far from each other.
+For k = 4, the cluster means still show vast differences. The means span the entire range, and none of  them are particularly close to each other.
+For k = 7, the cluster means show some similarities but still with a large range of values. Considering that each column is a point in time, we could plot these as a time graph and follow the trajectories. In this sense, the trajectories are still very varied and different from each other.
+
+
+## Different Clustering Method
+
+A different clustering method is hierarchical clustering, implemented below.
+
+```{r}
+# Dissimilarity matrix
+d <- dist(data, method = "euclidean")
+
+# Hierarchical clustering using Complete Linkage
+hc1 <- hclust(d, method = "complete" )
+
+# Plot the obtained dendrogram
+plot(hc1, cex = 0.6, hang = -1)
+```
+
+
+### Comparing the results
+Hierarchical clustering can roughly show the relative distances between centres when using different values of k. It is useful for deciding how many k-centroid values to use. The k-means clustering method is useful when the k is known or given and can group observations together intuitively. These can be used in conjuction: first apply hierarchical clustering to decide how many k's should be used, then k-means clustering with that k value. Hierarchical is definitely faster in this implementation. However, one is not better than the other since we have slightly different usages for them.
